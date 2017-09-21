@@ -213,10 +213,12 @@ module Rack
       end
 
       if @options[:protocol]
-        new_env["HTTPS"] = true and new_env["rack.url_scheme"] = "https" and new_env["SERVER_PORT"] = 443 if @options[:protocol] == "https"
-        new_env["HTTPS"] = false and new_env["rack.url_scheme"] = "http" and new_env["SERVER_PORT"] = 80 if @options[:protocol] == "http"
+        new_env["X_FORWARDED_PROTO"] = "https" and new_env["X_FORWARDED_PORT"] = "443" and new_env["HTTPS"] = true and new_env["rack.url_scheme"] = "https" and new_env["SERVER_PORT"] = 443 if @options[:protocol] == "https"
+        new_env["X_FORWARDED_PROTO"] = "http" and new_env["X_FORWARDED_PORT"] = "80" and new_env["HTTPS"] = false and new_env["rack.url_scheme"] = "http" and new_env["SERVER_PORT"] = 80 if @options[:protocol] == "http"
       end
 
+
+      new_env["HTTPS"] = true and new_env["rack.url_scheme"] = "https" and new_env["SERVER_PORT"] = 443
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__} new_env: #{new_env}"
 
       url = Rack::Request.new(new_env).url
