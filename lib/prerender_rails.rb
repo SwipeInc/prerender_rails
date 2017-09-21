@@ -218,7 +218,6 @@ module Rack
       end
 
 
-      new_env["HTTPS"] = true and new_env["rack.url_scheme"] = "https" and new_env["SERVER_PORT"] = 443
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__} new_env: #{new_env}"
 
       url = Rack::Request.new(new_env).url
