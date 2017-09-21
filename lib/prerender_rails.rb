@@ -96,6 +96,7 @@ module Rack
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
 
       if should_show_prerendered_page(env)
+        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} should show prerendered page"
 
         cached_response = before_render(env)
 
