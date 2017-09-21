@@ -120,6 +120,8 @@ module Rack
     end
 
     def should_show_prerendered_page(env)
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
       user_agent = get_request_user_agent(env)
 
       buffer_agent = env['HTTP_X_BUFFERBOT']
@@ -167,6 +169,8 @@ module Rack
 
 
     def get_prerendered_page_response(env)
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
       begin
         url = URI.parse(build_api_url(env))
         headers = {
@@ -193,6 +197,8 @@ module Rack
 
 
     def build_api_url(env)
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
       new_env = env
       if env["CF-VISITOR"]
         match = /"scheme":"(http|https)"/.match(env['CF-VISITOR'])
@@ -213,6 +219,9 @@ module Rack
       url = Rack::Request.new(new_env).url
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
+
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__} #{prerender_url}#{forward_slash}#{url}"
+
       "#{prerender_url}#{forward_slash}#{url}"
     end
 
@@ -223,6 +232,8 @@ module Rack
 
 
     def build_rack_response_from_prerender(prerendered_response)
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
       response = Rack::Response.new(prerendered_response.body, prerendered_response.code, prerendered_response.header)
 
       @options[:build_rack_response_from_prerender].call(response, prerendered_response) if @options[:build_rack_response_from_prerender]
