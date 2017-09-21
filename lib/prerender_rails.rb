@@ -4,6 +4,8 @@ module Rack
     require 'active_support'
 
     def initialize(app, options={})
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
       # googlebot, yahoo, and bingbot are not in this list because
       # we support _escaped_fragment_ and want to ensure people aren't
       # penalized for cloaking.
@@ -91,6 +93,8 @@ module Rack
 
 
     def call(env)
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
       if should_show_prerendered_page(env)
 
         cached_response = before_render(env)
@@ -111,9 +115,13 @@ module Rack
       @app.call(env)
     end
 
+    def get_request_user_agent(env)
+      return user_agent = env['HTTP_ROBOT_USER_AGENT'].present? ? env['HTTP_ROBOT_USER_AGENT'] : env['HTTP_USER_AGENT']
+    end
 
     def should_show_prerendered_page(env)
-      user_agent = env['HTTP_USER_AGENT']
+      user_agent = get_request_user_agent(env)
+
       buffer_agent = env['HTTP_X_BUFFERBOT']
       prerender_agent = env['HTTP_X_PRERENDER']
       is_requesting_prerendered_page = false
@@ -162,7 +170,7 @@ module Rack
       begin
         url = URI.parse(build_api_url(env))
         headers = {
-          'User-Agent' => env['HTTP_USER_AGENT'],
+          'User-Agent' => get_request_user_agent(env),
           'Accept-Encoding' => 'gzip'
         }
         headers['X-Prerender-Token'] = ENV['PRERENDER_TOKEN'] if ENV['PRERENDER_TOKEN']
