@@ -217,6 +217,8 @@ module Rack
         new_env["HTTPS"] = false and new_env["rack.url_scheme"] = "http" and new_env["SERVER_PORT"] = 80 if @options[:protocol] == "http"
       end
 
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__} new_env: #{new_env.to_json}"
+
       url = Rack::Request.new(new_env).url
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
