@@ -221,7 +221,7 @@ module Rack
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
 
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__} #{prerender_url}#{forward_slash}#{url} "
 
       "#{prerender_url}#{forward_slash}#{url}"
     end
