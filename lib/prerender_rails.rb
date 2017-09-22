@@ -219,7 +219,7 @@ module Rack
         new_env["X_FORWARDED_PROTO"] = "http" and new_env["X_FORWARDED_PORT"] = 80 and new_env["HTTPS"] = false and new_env["rack.url_scheme"] = "http" and new_env["SERVER_PORT"] = 80 if @options[:protocol] == "http"
       end
 
-      url = Rack::Request.new(new_env).url
+      url = Rack::Request.new(new_env).url.to_s.sub(/:\d+\z/, '')
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
 
