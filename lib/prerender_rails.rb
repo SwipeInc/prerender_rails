@@ -146,7 +146,7 @@ module Rack
       params = Rack::Utils.parse_nested_query(request.query_string)
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__} params: #{params.to_json}"
 
-      is_requesting_prerendered_page = true if params[:cache_refresh].present? && param[:cache_refresh] == true
+      is_requesting_prerendered_page = false if params[:cache_refresh].present? && param[:cache_refresh] == 'true'
 
       #if it is Prerender...don't show prerendered page
       is_requesting_prerendered_page = false if prerender_agent
