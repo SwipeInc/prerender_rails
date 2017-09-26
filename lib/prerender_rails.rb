@@ -115,7 +115,12 @@ module Rack
     end
 
     def get_request_user_agent(env)
-      return user_agent = env['HTTP_ROBOT_USER_AGENT'].present? ? env['HTTP_ROBOT_USER_AGENT'] : env['HTTP_USER_AGENT']
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
+
+      user_agent = env['HTTP_ROBOT_USER_AGENT'].present? ? env['HTTP_ROBOT_USER_AGENT'] : env['HTTP_USER_AGENT']
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__} user agent: #{user_agent}"
+
+      return
     end
 
     def should_show_prerendered_page(env)
