@@ -142,6 +142,12 @@ module Rack
       #if it is BufferBot...show prerendered page
       is_requesting_prerendered_page = true if buffer_agent
 
+      # if the cache should be refreshed... don't show the prerendered page.
+      params = Rack::Utils.parse_nested_query(request.query_string)
+      Rails.logger.debug "#{self.class.name.to_s}::#{__method__} params: #{params.to_json}"
+
+      is_requesting_prerendered_page = true if params[:cache_refresh].present? && param[:cache_refresh] == true
+
       #if it is Prerender...don't show prerendered page
       is_requesting_prerendered_page = false if prerender_agent
 
@@ -219,7 +225,7 @@ module Rack
         new_env["X_FORWARDED_PROTO"] = "http" and new_env["X_FORWARDED_PORT"] = 80 and new_env["HTTPS"] = false and new_env["rack.url_scheme"] = "http" and new_env["SERVER_PORT"] = 80 if @options[:protocol] == "http"
       end
 
-      url = Rack::Request.new(new_env).url.to_s.sub(/:\d+\z/, '')
+      url = Rack::Request.new(new_env).url
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
 
