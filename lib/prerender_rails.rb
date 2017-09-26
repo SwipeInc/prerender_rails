@@ -104,7 +104,6 @@ module Rack
         end
 
         prerendered_response = get_prerendered_page_response(env)
-
         if prerendered_response
           response = build_rack_response_from_prerender(prerendered_response)
           after_render(env, prerendered_response)
@@ -173,14 +172,18 @@ module Rack
 
       begin
         url = URI.parse(build_api_url(env))
+        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} url: #{url}"
+
         headers = {
           'User-Agent' => get_request_user_agent(env),
           'Accept-Encoding' => 'gzip'
         }
         headers['X-Prerender-Token'] = ENV['PRERENDER_TOKEN'] if ENV['PRERENDER_TOKEN']
         headers['X-Prerender-Token'] = @options[:prerender_token] if @options[:prerender_token]
+
         req = Net::HTTP::Get.new(url.request_uri, headers)
         req.basic_auth(ENV['PRERENDER_USERNAME'], ENV['PRERENDER_PASSWORD']) if @options[:basic_auth]
+
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true if url.scheme == 'https'
         response = http.request(req)
