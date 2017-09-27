@@ -117,7 +117,11 @@ module Rack
     def get_request_user_agent(env)
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
 
-      user_agent = env['HTTP_ROBOT_USER_AGENT'].present? ? env['HTTP_ROBOT_USER_AGENT'] : env['HTTP_USER_AGENT']
+      user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+      if (!env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'].nil? && env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] == 'true')
+        user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+      end
+
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__} user agent: #{user_agent}"
 
       return user_agent
@@ -227,13 +231,6 @@ module Rack
       end
 
       url = Rack::Request.new(new_env).url.split('?').first
-
-      if (!env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'].nil? && env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] == 'true')
-        url = url + '?view_mobile=true'
-      else
-        url = url + '?view_desktop=true'
-      end
-
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
 
