@@ -227,6 +227,12 @@ module Rack
       end
 
       url = Rack::Request.new(new_env).url.split('?').first
+
+      if (!request.env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'].nil? && request.env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] == 'true')
+        url = url + '?view_mobile=true'
+      else
+        url = url + '?view_mobile=true'
+      end
       prerender_url = get_prerender_service_url()
       forward_slash = prerender_url[-1, 1] == '/' ? '' : '/'
 
