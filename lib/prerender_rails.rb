@@ -117,14 +117,18 @@ module Rack
     def get_request_user_agent(env)
       Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
 
-      user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-      if (!env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'].nil? && env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] == 'true')
-        user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+      if env['HTTP_ROBOT_USER_AGENT'].present?
+        user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        if (!env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'].nil? && env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] == 'true')
+          user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        end
+
+        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} user agent: #{user_agent}"
+        return user_agent
+      else
+        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} request is not from a bot"
+        return false
       end
-
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__} user agent: #{user_agent}"
-
-      return user_agent
     end
 
     def should_show_prerendered_page(env)
