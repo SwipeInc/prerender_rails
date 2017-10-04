@@ -205,6 +205,9 @@ module Rack
           response['Content-Length'] = response.body.length
           response.delete('Content-Encoding')
         end
+
+        response['Cache-Control'] = 'max-age=86400, public'
+
         response
       rescue
         nil
