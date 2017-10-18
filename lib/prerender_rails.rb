@@ -4,8 +4,6 @@ module Rack
     require 'active_support'
 
     def initialize(app, options={})
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       # googlebot, yahoo, and bingbot are not in this list because
       # we support _escaped_fragment_ and want to ensure people aren't
       # penalized for cloaking.
@@ -93,11 +91,7 @@ module Rack
 
 
     def call(env)
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       if should_show_prerendered_page(env)
-        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} should show prerendered page"
-
         cached_response = before_render(env)
         if cached_response
           return cached_response.finish
@@ -115,25 +109,19 @@ module Rack
     end
 
     def get_request_user_agent(env)
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       if env['HTTP_ROBOT_USER_AGENT'].present?
         user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         if (!env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'].nil? && env['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] == 'true')
           user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         end
 
-        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} user agent: #{user_agent}"
         return user_agent
       else
-        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} request is not from a bot"
         return false
       end
     end
 
     def should_show_prerendered_page(env)
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       user_agent = get_request_user_agent(env)
 
       buffer_agent = env['HTTP_X_BUFFERBOT']
@@ -181,8 +169,6 @@ module Rack
 
 
     def get_prerendered_page_response(env)
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       begin
         url = URI.parse(build_api_url(env))
         Rails.logger.debug "#{self.class.name.to_s}::#{__method__} url: #{url}"
@@ -206,6 +192,15 @@ module Rack
           response.delete('Content-Encoding')
         end
 
+        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} response: #{response.to_json}"
+
+        # raise "Prerender url: #{url.to_s}, response code: #{response.code.to_i}"
+
+        # if response.code != 200
+        #   notifier = Slack::Notifier.new "https://hooks.slack.com/services/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"
+        #   notifier.ping "Prerender url: #{url.to_s}, response code: #{response.code.to_i}"
+        # end
+
         response['Cache-Control'] = 'max-age=86400, public'
 
         response
@@ -216,8 +211,6 @@ module Rack
 
 
     def build_api_url(env)
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       new_env = env
       if env["CF-VISITOR"]
         match = /"scheme":"(http|https)"/.match(env['CF-VISITOR'])
@@ -253,8 +246,6 @@ module Rack
 
 
     def build_rack_response_from_prerender(prerendered_response)
-      Rails.logger.debug "#{self.class.name.to_s}::#{__method__}"
-
       response = Rack::Response.new(prerendered_response.body, prerendered_response.code, prerendered_response.header)
 
       @options[:build_rack_response_from_prerender].call(response, prerendered_response) if @options[:build_rack_response_from_prerender]
