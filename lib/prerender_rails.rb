@@ -194,10 +194,9 @@ module Rack
 
         response['Cache-Control'] = 'max-age=86400, public'
         response
-      rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
-        raise e
       rescue
-        raise "An unknown error occurred while trying to fetch prerender page for #{url.to_s}"
+        NewRelic::Agent.notice_error("Failed to fetch prerender page for #{url.to_s}")
+        return nil
       end
     end
 
