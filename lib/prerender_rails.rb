@@ -192,20 +192,12 @@ module Rack
           response.delete('Content-Encoding')
         end
 
-        Rails.logger.debug "#{self.class.name.to_s}::#{__method__} response: #{response.to_json}"
-
-        # raise "Prerender url: #{url.to_s}, response code: #{response.code.to_i}"
-
-        # if response.code != 200
-        #   notifier = Slack::Notifier.new "https://hooks.slack.com/services/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"
-        #   notifier.ping "Prerender url: #{url.to_s}, response code: #{response.code.to_i}"
-        # end
-
         response['Cache-Control'] = 'max-age=86400, public'
-
         response
+      rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+        raise e
       rescue
-        nil
+        raise "An unknown error occurred while trying to fetch prerender page for #{url.to_s}"
       end
     end
 
